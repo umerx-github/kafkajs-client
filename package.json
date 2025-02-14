@@ -1,0 +1,37 @@
+{
+    "name": "test-kafka-consumer",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "build": "tsc",
+        "dev": "nodemon --watch './src/*' -e ts,js --exec 'npm run build; npm run solve'",
+        "test": "mocha",
+        "prod": "npm run build && node ./dist/index.js",
+        "solve": "node ./dist/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/AndrewJDawes/test-kafka-consumer.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/AndrewJDawes/test-kafka-consumer/issues"
+    },
+    "homepage": "https://github.com/AndrewJDawes/test-kafka-consumer#readme",
+    "devDependencies": {
+        "@types/chai": "^4.3.5",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^20.17.19",
+        "chai": "^4.3.7",
+        "mocha": "^10.2.0",
+        "nodemon": "^2.0.22",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.7.3"
+    },
+    "dependencies": {
+        "kafkajs": "^2.2.4"
+    }
+}
