@@ -1,9 +1,14 @@
 {
-    "name": "test-kafka-consumer",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "name": "@umerx/kafkajs-client",
+    "private": false,
+    "version": "0.0.1",
+    "description": "KafkaJS Wrapper",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "type": "module",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "build": "tsc",
         "dev": "nodemon --watch './src/*' -e ts,js --exec 'npm run build; npm run devServe'",
@@ -15,14 +20,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/AndrewJDawes/test-kafka-consumer.git"
+        "url": "git+https://github.com/umerx-github/kafkajs-client.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/AndrewJDawes/test-kafka-consumer/issues"
+        "url": "https://github.com/umerx-github/kafkajs-client/issues"
     },
-    "homepage": "https://github.com/AndrewJDawes/test-kafka-consumer#readme",
+    "homepage": "https://github.com/umerx-github/kafkajs-client#readme",
     "devDependencies": {
         "@types/chai": "^4.3.5",
         "@types/mocha": "^10.0.1",
@@ -31,10 +36,10 @@
         "mocha": "^10.2.0",
         "nodemon": "^2.0.22",
         "ts-node": "^10.9.1",
-        "typescript": "^5.7.3"
+        "typescript": "^5.7.3",
+        "concurrently": "^9.1.2"
     },
     "dependencies": {
-        "concurrently": "^9.1.2",
         "kafkajs": "^2.2.4"
     }
 }

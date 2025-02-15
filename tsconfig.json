@@ -4,11 +4,13 @@
         "moduleResolution": "NodeNext",
         "target": "ES2022",
         "strict": true,
-        "sourceMap": true,
-        "outDir": "dist"
+        "outDir": "dist",
+        "declaration": true,
+        "moduleDetection": "force",
+        "sourceMap": false,
     },
     "include": [
-        "src/**/*"
+        "index.ts", "src/**/*"
     ],
     "exclude": [
         "src/**/*.spec.ts"
