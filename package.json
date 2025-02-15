@@ -6,10 +6,12 @@
     "type": "module",
     "scripts": {
         "build": "tsc",
-        "dev": "nodemon --watch './src/*' -e ts,js --exec 'npm run build; npm run solve'",
+        "dev": "nodemon --watch './src/*' -e ts,js --exec 'npm run build; npm run devServe'",
+        "devServe": "concurrently -k -n \"Producer,Consumer\" -c \"green,blue\"  \"npm run produce\" \"npm run consume\"",
         "test": "mocha",
         "prod": "npm run build && node ./dist/index.js",
-        "solve": "node ./dist/index.js"
+        "consume": "KAFKA_POSITION=consumer node ./dist/index.js",
+        "produce": "KAFKA_POSITION=producer node ./dist/index.js"
     },
     "repository": {
         "type": "git",
@@ -32,6 +34,7 @@
         "typescript": "^5.7.3"
     },
     "dependencies": {
+        "concurrently": "^9.1.2",
         "kafkajs": "^2.2.4"
     }
 }
