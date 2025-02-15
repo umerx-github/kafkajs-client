@@ -1,0 +1,51 @@
+pipeline {
+    agent none
+    stages {
+        // Check out this way to detect if you are building a tag or not: https://www.youtube.com/watch?v=saiCjlJpfdA
+        stage('Exit early') {
+            agent any
+            when {
+                not {
+                    anyOf {
+                        //buildingTag();
+                        branch 'main';
+                    }
+                }
+            }
+            steps {
+                script {
+                    echo "Not building. Exiting pipeline with 'NOT_BUILT' status."
+                    currentBuild.result = 'NOT_BUILT'
+                    error("No changes detected; exiting pipeline.")
+                    exit 1
+                    return
+                }
+            }
+        }
+        stage('Push to npm') {
+            when {
+                branch 'main';
+            }
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye'
+                    args "--entrypoint ''"
+                }
+            }
+            steps {
+                script {
+                    withCredentials(bindings: [ \
+                        conjurSecretCredential(credentialsId: 'umerx-npm-npm-token-kafkajs-client', variable: 'NPM_TOKEN')
+                    ]) {
+                        sh '''
+                        npm ci
+                        npm run build
+                        npm config set "//registry.npmjs.org/:_authToken=$NPM_TOKEN"
+                        npm publish --access public
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
