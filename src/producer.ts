@@ -6,10 +6,6 @@ import {
     TopicMessages,
 } from 'kafkajs';
 
-interface CustomMessageFormat {
-    a: string;
-}
-
 export default class ProducerFactory {
     private producer: Producer;
 
@@ -31,18 +27,10 @@ export default class ProducerFactory {
         await this.producer.disconnect();
     }
 
-    public async sendBatch(
-        messages: Array<CustomMessageFormat>
-    ): Promise<void> {
-        const kafkaMessages: Array<Message> = messages.map((message) => {
-            return {
-                value: JSON.stringify(message),
-            };
-        });
-
+    public async sendBatch(messages: Array<Message>): Promise<void> {
         const topicMessages: TopicMessages = {
             topic: 'testing',
-            messages: kafkaMessages,
+            messages,
         };
 
         const batch: ProducerBatch = {

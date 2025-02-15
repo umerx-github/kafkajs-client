@@ -1,6 +1,7 @@
 // Get ENV/ variable named "KAFKA_POSITION"
 // import ExampleConsumer from './consumer.js';
 // import ProducerFactory from './producer.js';
+import { Message } from 'kafkajs';
 const kafkaPosition = process.env.KAFKA_POSITION;
 if (!kafkaPosition) {
     throw new Error('KAFKA_POSITION is not defined');
@@ -13,7 +14,10 @@ if (kafkaPosition === 'producer') {
         await producer.start();
         while (true) {
             const random = Math.floor(Math.random() * 100);
-            const message = { a: `test-${random}` };
+            const message = {
+                key: `key-${random}`,
+                value: `value-${random}`,
+            };
             console.log('Sending message: ', JSON.stringify(message));
             producer.sendBatch([message]);
             await new Promise((resolve) => setTimeout(resolve, 1000));
