@@ -8,14 +8,27 @@ import {
 
 export default class ExampleConsumer {
     private kafkaConsumer: Consumer;
+    private clientId: string;
+    private brokers: string[];
+    private groupId: string;
+    private topics: string[];
 
-    public constructor() {
+    public constructor(
+        clientId: string,
+        brokers: string[],
+        groupId: string,
+        topics: string[]
+    ) {
+        this.clientId = clientId;
+        this.brokers = brokers;
+        this.groupId = groupId;
+        this.topics = topics;
         this.kafkaConsumer = this.createKafkaConsumer();
     }
 
     public async startConsumer(): Promise<void> {
         const topic: ConsumerSubscribeTopics = {
-            topics: ['testing'],
+            topics: this.topics,
             fromBeginning: false,
         };
 
@@ -35,25 +48,45 @@ export default class ExampleConsumer {
         }
     }
 
-    public async startBatchConsumer(): Promise<void> {
+    // public async startBatchConsumer(): Promise<void> {
+    //     const topic: ConsumerSubscribeTopics = {
+    //         topics: this.topics,
+    //         fromBeginning: false,
+    //     };
+
+    //     try {
+    //         await this.kafkaConsumer.connect();
+    //         await this.kafkaConsumer.subscribe(topic);
+    //         await this.kafkaConsumer.run({
+    //             eachBatch: async (eachBatchPayload: EachBatchPayload) => {
+    //                 const { batch } = eachBatchPayload;
+    //                 for (const message of batch.messages) {
+    //                     const prefix = `${batch.topic}[${batch.partition} | ${message.offset}] / ${message.timestamp}`;
+    //                     console.log(
+    //                         `- ${prefix} ${message.key}#${message.value}`
+    //                     );
+    //                 }
+    //             },
+    //         });
+    //     } catch (error) {
+    //         console.log('Error: ', error);
+    //     }
+    // }
+
+    public async onMessage(
+        handler: (messagePayload: EachMessagePayload) => Promise<void>
+    ): Promise<void> {
         const topic: ConsumerSubscribeTopics = {
-            topics: ['testing'],
+            topics: this.topics,
             fromBeginning: false,
         };
 
         try {
             await this.kafkaConsumer.connect();
             await this.kafkaConsumer.subscribe(topic);
+
             await this.kafkaConsumer.run({
-                eachBatch: async (eachBatchPayload: EachBatchPayload) => {
-                    const { batch } = eachBatchPayload;
-                    for (const message of batch.messages) {
-                        const prefix = `${batch.topic}[${batch.partition} | ${message.offset}] / ${message.timestamp}`;
-                        console.log(
-                            `- ${prefix} ${message.key}#${message.value}`
-                        );
-                    }
-                },
+                eachMessage: handler,
             });
         } catch (error) {
             console.log('Error: ', error);
@@ -66,10 +99,10 @@ export default class ExampleConsumer {
 
     private createKafkaConsumer(): Consumer {
         const kafka = new Kafka({
-            clientId: 'client-id',
-            brokers: ['broker:9092'],
+            clientId: this.clientId,
+            brokers: this.brokers,
         });
-        const consumer = kafka.consumer({ groupId: 'consumer-group' });
+        const consumer = kafka.consumer({ groupId: this.groupId });
         return consumer;
     }
 }

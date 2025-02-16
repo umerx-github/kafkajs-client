@@ -8,8 +8,14 @@ import {
 
 export default class ProducerFactory {
     private producer: Producer;
+    private clientId: string;
+    private brokers: string[];
+    private topic: string;
 
-    constructor() {
+    constructor(clientId: string, brokers: string[], topic: string) {
+        this.clientId = clientId;
+        this.brokers = brokers;
+        this.topic = topic;
         this.producer = this.createProducer();
     }
 
@@ -27,23 +33,30 @@ export default class ProducerFactory {
         await this.producer.disconnect();
     }
 
-    public async sendBatch(messages: Array<Message>): Promise<void> {
-        const topicMessages: TopicMessages = {
-            topic: 'testing',
-            messages,
-        };
+    // public async sendBatch(messages: Array<Message>): Promise<void> {
+    //     const topicMessages: TopicMessages = {
+    //         topic: this.topic,
+    //         messages,
+    //     };
 
-        const batch: ProducerBatch = {
-            topicMessages: [topicMessages],
-        };
+    //     const batch: ProducerBatch = {
+    //         topicMessages: [topicMessages],
+    //     };
 
-        await this.producer.sendBatch(batch);
+    //     await this.producer.sendBatch(batch);
+    // }
+
+    public async sendMessage(message: Message): Promise<void> {
+        await this.producer.send({
+            topic: this.topic,
+            messages: [message],
+        });
     }
 
     private createProducer(): Producer {
         const kafka = new Kafka({
-            clientId: 'client-id',
-            brokers: ['broker:9092'],
+            clientId: this.clientId,
+            brokers: this.brokers,
         });
 
         return kafka.producer();
