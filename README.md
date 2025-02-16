@@ -6,6 +6,6 @@
 
 `npm version <update_type>`
 
-2. Run `npm publish`.
+2. Commit and push. Jenkins is configured to build and publish the package to npm on every push to the `main` branch.
 
-3. Go to your package page (`https://npmjs.com/package/<package>`) to check that the package version has been updated.
+3. Check your package page (`https://www.npmjs.com/package/@umerx/kafkajs-client`) to check that the package version has been updated.
