@@ -1,13 +1,13 @@
 import {
     Kafka,
     Message,
-    Producer,
+    Producer as KafkaProducer,
     ProducerBatch,
     TopicMessages,
 } from 'kafkajs';
 
-export default class ProducerFactory {
-    private producer: Producer;
+export class Producer {
+    private producer: KafkaProducer;
     private clientId: string;
     private brokers: string[];
     private topic: string;
@@ -53,7 +53,7 @@ export default class ProducerFactory {
         });
     }
 
-    private createProducer(): Producer {
+    private createProducer(): KafkaProducer {
         const kafka = new Kafka({
             clientId: this.clientId,
             brokers: this.brokers,

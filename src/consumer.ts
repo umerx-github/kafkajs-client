@@ -1,13 +1,13 @@
 import {
-    Consumer,
+    Consumer as KafkaConsumer,
     ConsumerSubscribeTopics,
     EachBatchPayload,
     Kafka,
     EachMessagePayload,
 } from 'kafkajs';
 
-export default class ExampleConsumer {
-    private kafkaConsumer: Consumer;
+export class Consumer {
+    private kafkaConsumer: KafkaConsumer;
     private clientId: string;
     private brokers: string[];
     private groupId: string;
@@ -97,7 +97,7 @@ export default class ExampleConsumer {
         await this.kafkaConsumer.disconnect();
     }
 
-    private createKafkaConsumer(): Consumer {
+    private createKafkaConsumer(): KafkaConsumer {
         const kafka = new Kafka({
             clientId: this.clientId,
             brokers: this.brokers,
