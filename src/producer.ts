@@ -19,6 +19,15 @@ export class Producer {
         this.producer = this.createProducer();
     }
 
+    private createProducer(): KafkaProducer {
+        const kafka = new Kafka({
+            clientId: this.clientId,
+            brokers: this.brokers,
+        });
+
+        return kafka.producer();
+    }
+
     public async start(): Promise<void> {
         try {
             console.log('Connecting producer');
@@ -33,32 +42,10 @@ export class Producer {
         await this.producer.disconnect();
     }
 
-    // public async sendBatch(messages: Array<Message>): Promise<void> {
-    //     const topicMessages: TopicMessages = {
-    //         topic: this.topic,
-    //         messages,
-    //     };
-
-    //     const batch: ProducerBatch = {
-    //         topicMessages: [topicMessages],
-    //     };
-
-    //     await this.producer.sendBatch(batch);
-    // }
-
     public async sendMessage(message: Message): Promise<void> {
         await this.producer.send({
             topic: this.topic,
             messages: [message],
         });
-    }
-
-    private createProducer(): KafkaProducer {
-        const kafka = new Kafka({
-            clientId: this.clientId,
-            brokers: this.brokers,
-        });
-
-        return kafka.producer();
     }
 }
