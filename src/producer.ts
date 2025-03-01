@@ -1,37 +1,39 @@
-import {
-    Kafka,
-    Message,
-    Producer as KafkaProducer,
-    ProducerBatch,
-    TopicMessages,
-} from 'kafkajs';
+import { Kafka, Message, Producer as KafkaProducer } from 'kafkajs';
+
+interface ProducerConfig {
+    clientId: string;
+    brokers: string[];
+    topic: string;
+    allowAutoTopicCreation?: boolean;
+}
 
 export class Producer {
-    private producer: KafkaProducer;
-    private clientId: string;
-    private brokers: string[];
-    private topic: string;
+    private kafkaProducer: KafkaProducer;
+    private config: ProducerConfig;
 
-    constructor(clientId: string, brokers: string[], topic: string) {
-        this.clientId = clientId;
-        this.brokers = brokers;
-        this.topic = topic;
-        this.producer = this.createProducer();
+    public constructor(config: ProducerConfig) {
+        this.config = {
+            ...config,
+            allowAutoTopicCreation: config.allowAutoTopicCreation ?? false,
+        };
+        this.kafkaProducer = this.createProducer();
     }
 
     private createProducer(): KafkaProducer {
         const kafka = new Kafka({
-            clientId: this.clientId,
-            brokers: this.brokers,
+            clientId: this.config.clientId,
+            brokers: this.config.brokers,
         });
 
-        return kafka.producer();
+        return kafka.producer({
+            allowAutoTopicCreation: this.config.allowAutoTopicCreation,
+        });
     }
 
     public async start(): Promise<void> {
         try {
             console.log('Connecting producer');
-            await this.producer.connect();
+            await this.kafkaProducer.connect();
             console.log('Producer connected');
         } catch (error) {
             console.log('Error connecting the producer: ', error);
@@ -39,12 +41,12 @@ export class Producer {
     }
 
     public async shutdown(): Promise<void> {
-        await this.producer.disconnect();
+        await this.kafkaProducer.disconnect();
     }
 
     public async sendMessage(message: Message): Promise<void> {
-        await this.producer.send({
-            topic: this.topic,
+        await this.kafkaProducer.send({
+            topic: this.config.topic,
             messages: [message],
         });
     }
