@@ -3,41 +3,35 @@ import {
     Consumer as KafkaConsumer,
     ConsumerSubscribeTopics,
     EachMessagePayload,
+    KafkaConfig,
+    ConsumerConfig,
 } from 'kafkajs';
 
-interface ConsumerConfig {
-    clientId: string;
-    brokers: string[];
-    groupId: string;
-    topics: string[];
-    fromBeginning?: boolean;
-    handler: (messagePayload: EachMessagePayload) => Promise<void>;
+interface ConsumerClientConfig {
+    kafkaConfig: KafkaConfig;
+    consumerConfig: ConsumerConfig;
+    consumerSubscribeTopics: ConsumerSubscribeTopics;
+    onMessage: (messagePayload: EachMessagePayload) => Promise<void>;
 }
 
 export class Consumer {
     private kafkaConsumer: KafkaConsumer;
-    private config: ConsumerConfig;
+    private config: ConsumerClientConfig;
 
-    public constructor(config: ConsumerConfig) {
-        this.config = {
-            ...config,
-            fromBeginning: config.fromBeginning ?? false,
-        };
+    public constructor(config: ConsumerClientConfig) {
+        this.config = config;
         this.kafkaConsumer = this.createKafkaConsumer();
     }
 
-    public async subscribe(): Promise<void> {
-        const topic: ConsumerSubscribeTopics = {
-            topics: this.config.topics,
-            fromBeginning: this.config.fromBeginning,
-        };
-
+    public async start(): Promise<void> {
+        const topic: ConsumerSubscribeTopics =
+            this.config.consumerSubscribeTopics;
         try {
             await this.kafkaConsumer.connect();
             await this.kafkaConsumer.subscribe(topic);
 
             await this.kafkaConsumer.run({
-                eachMessage: this.config.handler,
+                eachMessage: this.config.onMessage,
             });
         } catch (error) {
             console.log('Error: ', error);
@@ -49,11 +43,8 @@ export class Consumer {
     }
 
     private createKafkaConsumer(): KafkaConsumer {
-        const kafka = new Kafka({
-            clientId: this.config.clientId,
-            brokers: this.config.brokers,
-        });
-        const consumer = kafka.consumer({ groupId: this.config.groupId });
+        const kafka = new Kafka(this.config.kafkaConfig);
+        const consumer = kafka.consumer(this.config.consumerConfig);
         return consumer;
     }
 }

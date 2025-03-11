@@ -1,33 +1,30 @@
-import { Kafka, Message, Producer as KafkaProducer } from 'kafkajs';
+import {
+    Kafka,
+    Message,
+    Producer as KafkaProducer,
+    KafkaConfig,
+    ProducerConfig,
+} from 'kafkajs';
 
-interface ProducerConfig {
-    clientId: string;
-    brokers: string[];
-    topic: string;
-    allowAutoTopicCreation?: boolean;
+interface ProducerClientConfig {
+    kafkaConfig: KafkaConfig;
+    producerConfig: ProducerConfig;
+    topics: string[];
 }
 
 export class Producer {
     private kafkaProducer: KafkaProducer;
-    private config: ProducerConfig;
+    private config: ProducerClientConfig;
 
-    public constructor(config: ProducerConfig) {
-        this.config = {
-            ...config,
-            allowAutoTopicCreation: config.allowAutoTopicCreation ?? false,
-        };
+    public constructor(config: ProducerClientConfig) {
+        this.config = config;
         this.kafkaProducer = this.createProducer();
     }
 
     private createProducer(): KafkaProducer {
-        const kafka = new Kafka({
-            clientId: this.config.clientId,
-            brokers: this.config.brokers,
-        });
+        const kafka = new Kafka(this.config.kafkaConfig);
 
-        return kafka.producer({
-            allowAutoTopicCreation: this.config.allowAutoTopicCreation,
-        });
+        return kafka.producer(this.config.producerConfig);
     }
 
     public async start(): Promise<void> {
@@ -45,9 +42,18 @@ export class Producer {
     }
 
     public async sendMessage(message: Message): Promise<void> {
-        await this.kafkaProducer.send({
-            topic: this.config.topic,
-            messages: [message],
+        const sendPromises = this.config.topics.map(async (topic) => {
+            try {
+                await this.kafkaProducer.send({
+                    topic,
+                    messages: [message],
+                });
+                console.log('Message sent to topic: ', topic);
+            } catch (error) {
+                console.log('Error sending message: ', error);
+            }
         });
+
+        await Promise.all(sendPromises);
     }
 }
