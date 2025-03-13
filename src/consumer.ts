@@ -14,6 +14,11 @@ interface ConsumerClientConfig {
     onMessage: (messagePayload: EachMessagePayload) => Promise<void>;
 }
 
+export interface ConsumerInterface {
+    start(): Promise<void>;
+    shutdown(): Promise<void>;
+}
+
 export class Consumer {
     private kafkaConsumer: KafkaConsumer;
     private config: ConsumerClientConfig;
