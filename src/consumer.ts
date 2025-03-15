@@ -31,16 +31,12 @@ export class Consumer {
     public async start(): Promise<void> {
         const topic: ConsumerSubscribeTopics =
             this.config.consumerSubscribeTopics;
-        try {
-            await this.kafkaConsumer.connect();
-            await this.kafkaConsumer.subscribe(topic);
+        await this.kafkaConsumer.connect();
+        await this.kafkaConsumer.subscribe(topic);
 
-            await this.kafkaConsumer.run({
-                eachMessage: this.config.onMessage,
-            });
-        } catch (error) {
-            console.log('Error: ', error);
-        }
+        await this.kafkaConsumer.run({
+            eachMessage: this.config.onMessage,
+        });
     }
 
     public async shutdown(): Promise<void> {

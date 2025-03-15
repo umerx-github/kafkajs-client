@@ -34,13 +34,7 @@ export class Producer {
     }
 
     public async start(): Promise<void> {
-        try {
-            console.log('Connecting producer');
-            await this.kafkaProducer.connect();
-            console.log('Producer connected');
-        } catch (error) {
-            console.log('Error connecting the producer: ', error);
-        }
+        await this.kafkaProducer.connect();
     }
 
     public async shutdown(): Promise<void> {
@@ -49,15 +43,10 @@ export class Producer {
 
     public async sendMessage(message: Message): Promise<void> {
         const sendPromises = this.config.topics.map(async (topic) => {
-            try {
-                await this.kafkaProducer.send({
-                    topic,
-                    messages: [message],
-                });
-                console.log('Message sent to topic: ', topic);
-            } catch (error) {
-                console.log('Error sending message: ', error);
-            }
+            await this.kafkaProducer.send({
+                topic,
+                messages: [message],
+            });
         });
 
         await Promise.all(sendPromises);
