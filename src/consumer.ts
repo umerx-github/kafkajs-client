@@ -11,7 +11,6 @@ interface ConsumerClientConfig {
     kafkaConfig: KafkaConfig;
     consumerConfig: ConsumerConfig;
     consumerSubscribeTopics: ConsumerSubscribeTopics;
-    onMessage: (messagePayload: EachMessagePayload) => Promise<void>;
 }
 
 export interface ConsumerInterface {
@@ -22,6 +21,9 @@ export interface ConsumerInterface {
 export class Consumer {
     private kafkaConsumer: KafkaConsumer;
     private config: ConsumerClientConfig;
+    private onMessageHandlers: ((
+        messagePayload: EachMessagePayload
+    ) => Promise<void>)[] = [];
 
     public constructor(config: ConsumerClientConfig) {
         this.config = config;
@@ -33,14 +35,25 @@ export class Consumer {
             this.config.consumerSubscribeTopics;
         await this.kafkaConsumer.connect();
         await this.kafkaConsumer.subscribe(topic);
-
         await this.kafkaConsumer.run({
-            eachMessage: this.config.onMessage,
+            eachMessage: this.onMessage,
+        });
+    }
+
+    public async onMessage(messagePayload: EachMessagePayload) {
+        this.onMessageHandlers.forEach((handler) => {
+            handler(messagePayload);
         });
     }
 
     public async shutdown(): Promise<void> {
         await this.kafkaConsumer.disconnect();
+    }
+
+    public addOnMessageHandler(
+        handler: (messagePayload: EachMessagePayload) => Promise<void>
+    ) {
+        this.onMessageHandlers.push(handler);
     }
 
     private createKafkaConsumer(): KafkaConsumer {
