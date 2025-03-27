@@ -36,7 +36,7 @@ export class Consumer {
         await this.kafkaConsumer.connect();
         await this.kafkaConsumer.subscribe(topic);
         await this.kafkaConsumer.run({
-            eachMessage: this.onMessage,
+            eachMessage: this.onMessage.bind(this),
         });
     }
 
