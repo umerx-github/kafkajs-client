@@ -19,7 +19,7 @@ export class Message {
     }
 
     public commit() {
-        this.kafkaConsumer.commitOffsets([
+        return this.kafkaConsumer.commitOffsets([
             {
                 offset: this.message.message.offset,
                 topic: this.message.topic,
