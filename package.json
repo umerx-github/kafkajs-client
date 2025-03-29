@@ -1,7 +1,7 @@
 {
     "name": "@umerx/kafkajs-client",
     "private": false,
-    "version": "3.0.0",
+    "version": "3.0.1",
     "description": "KafkaJS Wrapper",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
