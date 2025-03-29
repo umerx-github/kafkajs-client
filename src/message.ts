@@ -1,5 +1,6 @@
 import { EachMessagePayload } from 'kafkajs';
 import { Consumer as KafkaConsumer } from 'kafkajs';
+import { off } from 'process';
 
 export class Message {
     private message: EachMessagePayload;
@@ -16,6 +17,10 @@ export class Message {
 
     public get value(): Buffer | null {
         return this.message.message.value;
+    }
+
+    public get offset(): number {
+        return parseInt(this.message.message.offset, 10);
     }
 
     public commit() {
