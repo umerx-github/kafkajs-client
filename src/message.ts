@@ -1,3 +1,4 @@
+import { error } from 'console';
 import { EachMessagePayload } from 'kafkajs';
 import { Consumer as KafkaConsumer } from 'kafkajs';
 import { off } from 'process';
@@ -20,7 +21,11 @@ export class Message {
     }
 
     public get offset(): number {
-        return parseInt(this.message.message.offset, 10);
+        const offset = parseInt(this.message.message.offset, 10);
+        if (isNaN(offset)) {
+            throw new Error(`Invalid offset: ${offset}`);
+        }
+        return offset;
     }
 
     public commit() {
