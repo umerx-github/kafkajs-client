@@ -6,6 +6,7 @@ import {
     KafkaConfig,
     ConsumerConfig,
 } from 'kafkajs';
+import { Message } from './message.js';
 
 interface ConsumerClientConfig {
     kafkaConfig: KafkaConfig;
@@ -21,9 +22,7 @@ export interface ConsumerInterface {
 export class Consumer {
     private kafkaConsumer: KafkaConsumer;
     private config: ConsumerClientConfig;
-    private onMessageHandlers: ((
-        messagePayload: EachMessagePayload
-    ) => Promise<void>)[] = [];
+    private onMessageHandlers: ((message: Message) => Promise<void>)[] = [];
 
     public constructor(config: ConsumerClientConfig) {
         this.config = config;
@@ -41,8 +40,9 @@ export class Consumer {
     }
 
     public async onMessage(messagePayload: EachMessagePayload) {
+        const message = new Message(messagePayload, this.kafkaConsumer);
         this.onMessageHandlers.forEach((handler) => {
-            handler(messagePayload);
+            handler(message);
         });
     }
 
@@ -50,9 +50,7 @@ export class Consumer {
         await this.kafkaConsumer.disconnect();
     }
 
-    public addOnMessageHandler(
-        handler: (messagePayload: EachMessagePayload) => Promise<void>
-    ) {
+    public addOnMessageHandler(handler: (message: Message) => Promise<void>) {
         this.onMessageHandlers.push(handler);
     }
 
