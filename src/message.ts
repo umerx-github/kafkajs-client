@@ -1,7 +1,5 @@
-import { error } from 'console';
 import { EachMessagePayload } from 'kafkajs';
 import { Consumer as KafkaConsumer } from 'kafkajs';
-import { off } from 'process';
 
 export class Message {
     private message: EachMessagePayload;

@@ -12,12 +12,6 @@ interface ProducerClientConfig {
     topics: string[];
 }
 
-export interface ProducerInterface {
-    start(): Promise<void>;
-    shutdown(): Promise<void>;
-    sendMessage(message: Message): Promise<void>;
-}
-
 export class Producer {
     private kafkaProducer: KafkaProducer;
     private config: ProducerClientConfig;
