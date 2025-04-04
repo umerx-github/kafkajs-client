@@ -1,19 +1,14 @@
-import { Message } from './interfaces.js';
-import { DatabaseLike } from './interfaces.js';
+import { ConsumableMessage, SubscribableCommitable, Storable } from './interfaces.js';
 
-interface ConsumerLike {
-    addOnMessageHandler(handler: (message: Message) => Promise<void>): void;
-}
-
-export class IdempotentConsumerAdapter {
-    private consumer: ConsumerLike;
-    private db: DatabaseLike<number, string>;
+export class IdempotentConsumerAdapter implements SubscribableCommitable {
+    private consumer: SubscribableCommitable;
+    private db: Storable<number, string>;
     private lastProcessed: number | null;
-    private onMessageHandlers: ((message: Message) => Promise<void>)[] = [];
+    private onMessageHandlers: ((message: ConsumableMessage) => Promise<void>)[] = [];
     private flushing: boolean = false;
-    private messageQueue: Message[] = [];
+    private messageQueue: ConsumableMessage[] = [];
 
-    constructor(consumer: ConsumerLike, db: DatabaseLike<number, string>) {
+    constructor(consumer: SubscribableCommitable, db: Storable<number, string>) {
         this.consumer = consumer;
         this.db = db;
         this.lastProcessed = null;
@@ -32,7 +27,7 @@ export class IdempotentConsumerAdapter {
         return this.lastProcessed;
     }
 
-    private async onMessage(message: Message): Promise<void> {
+    private async onMessage(message: ConsumableMessage): Promise<void> {
         this.messageQueue.push(message);
         this.flush();
     }
@@ -49,15 +44,13 @@ export class IdempotentConsumerAdapter {
                     await this.processMessage(message);
                 } catch (e) {
                     console.error('Error processing message:', e);
-                    // this.flushing = false;
-                    // break;
                 }
             }
         }
         this.flushing = false;
     }
 
-    private async processMessage(message: Message): Promise<void> {
+    private async processMessage(message: ConsumableMessage): Promise<void> {
         let lastProcessed = await this.getLastProcessed();
         if (message.offset <= lastProcessed) {
             message.commit();
@@ -79,7 +72,7 @@ export class IdempotentConsumerAdapter {
     }
 
     public async addOnMessageHandler(
-        handler: (message: Message) => Promise<void>
+        handler: (message: ConsumableMessage) => Promise<void>
     ): Promise<void> {
         this.onMessageHandlers.push(handler);
     }

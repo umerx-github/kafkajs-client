@@ -6,7 +6,8 @@ import {
     KafkaConfig,
     ConsumerConfig,
 } from 'kafkajs';
-import { Message } from './message.js';
+import { ConsumableMessage, Startable, SubscribableCommitable } from './interfaces.js';
+import { Message as MessageConcrete } from './message.js';
 
 interface ConsumerClientConfig {
     kafkaConfig: KafkaConfig;
@@ -14,10 +15,10 @@ interface ConsumerClientConfig {
     consumerSubscribeTopics: ConsumerSubscribeTopics;
 }
 
-export class Consumer {
+export class Consumer implements Startable, SubscribableCommitable {
     private kafkaConsumer: KafkaConsumer;
     private config: ConsumerClientConfig;
-    private onMessageHandlers: ((message: Message) => Promise<void>)[] = [];
+    private onMessageHandlers: ((message: ConsumableMessage) => Promise<void>)[] = [];
 
     public constructor(config: ConsumerClientConfig) {
         this.config = config;
@@ -35,7 +36,7 @@ export class Consumer {
     }
 
     public async onMessage(messagePayload: EachMessagePayload) {
-        const message = new Message(messagePayload, this.kafkaConsumer);
+        const message = new MessageConcrete(messagePayload, this.kafkaConsumer);
         this.onMessageHandlers.forEach((handler) => {
             handler(message);
         });
@@ -45,7 +46,7 @@ export class Consumer {
         await this.kafkaConsumer.disconnect();
     }
 
-    public addOnMessageHandler(handler: (message: Message) => Promise<void>) {
+    public addOnMessageHandler(handler: (message: ConsumableMessage) => Promise<void>) {
         this.onMessageHandlers.push(handler);
     }
 

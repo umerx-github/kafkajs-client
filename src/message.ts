@@ -1,7 +1,8 @@
 import { EachMessagePayload } from 'kafkajs';
 import { Consumer as KafkaConsumer } from 'kafkajs';
+import { ConsumableMessage as MessageInterface, ConsumableMessage } from './interfaces.js';
 
-export class Message {
+export class Message implements MessageInterface, ConsumableMessage{
     private message: EachMessagePayload;
     private kafkaConsumer: KafkaConsumer;
 

@@ -5,6 +5,7 @@ import {
     KafkaConfig,
     ProducerConfig,
 } from 'kafkajs';
+import { Broadcastable, Startable } from './interfaces.js';
 
 interface ProducerClientConfig {
     kafkaConfig: KafkaConfig;
@@ -12,7 +13,7 @@ interface ProducerClientConfig {
     topics: string[];
 }
 
-export class Producer {
+export class Producer implements Startable, Broadcastable {
     private kafkaProducer: KafkaProducer;
     private config: ProducerClientConfig;
 
