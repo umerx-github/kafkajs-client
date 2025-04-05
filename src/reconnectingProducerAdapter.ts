@@ -2,13 +2,13 @@ import { Producer } from "../index.js";
 import { Broadcastable, ProducableMessage } from "./interfaces.js";
 
 interface ReconnectingProducerAdapterProps {
-    producer: Producer.Producer;
+    producer: Producer;
     delay?: number;
 }
 
 export class ReconnectingProducerAdapter implements Broadcastable {
     private messageQueue: ProducableMessage[];
-    private producer: Producer.Producer;
+    private producer: Producer;
     private flushable: boolean;
     private delay: number;
     private flushing: boolean;
